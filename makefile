@@ -5,7 +5,7 @@ CFLAGS = -Wall -Wextra -O2
 # Output folder and targets
 BIN_DIR = bin
 TARGET = $(BIN_DIR)/scli
-LINKS = slist scopy sremove
+LINKS = mls mmkdir mtouch mrmdir mrm mcp mmv mcat mgrep mchmod
 
 # Default target
 all: $(BIN_DIR) $(TARGET) links

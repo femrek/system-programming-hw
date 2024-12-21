@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <dirent.h>
 
-int dir_list() {
+int dir_ls(int argc, char *argv[]) {
   // open the directory
   DIR *dir_ptr;
   dir_ptr = opendir(".");
@@ -29,11 +29,11 @@ int dir_list() {
   return 0;
 }
 
-int dir_create() {
+int dir_mkdir(int argc, char *argv[]) {
   return 0;
 }
 
-int dir_delete() {
+int dir_rmdir(int argc, char *argv[]) {
   return 0;
 }
 
