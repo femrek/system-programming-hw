@@ -8,3 +8,4 @@ int ends_with(const char *str, const char *suffix) {
   return (str_len >= suffix_len) &&
          (!memcmp(str + str_len - suffix_len, suffix, suffix_len));
 }
+

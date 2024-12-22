@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <dirent.h>
-#include "directory_ops.c"
-#include "file_operations.c"
-#include "permissions.c"
-#include "utils.c"
+#include "../include/directory_ops.h"
+#include "../include/file_operations.h"
+#include "../include/permissions.h"
+#include "../include/logger.h"
+#include "../include/utils/ends_with.h"
 
 // the list for keep all the executable names. (comes from soft links to main executable).
 char *executables[] = {
@@ -27,6 +28,7 @@ int main(int argc, char *argv[]) {
 
   // trigger the function according to called soft link file (dummy executable name).
   char *executable = argv[0];
+  logI(executable, NULL);
   if (ends_with(executable, executables[0])) {
     return dir_ls(argc, argv);
   }

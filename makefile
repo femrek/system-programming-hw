@@ -1,23 +1,41 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -O2
+CFLAGS = -Wall -Wextra -O2 -Iinclude
 
-# Output folder and targets
+# Directories
+SRC_DIR = src
+INCLUDE_DIR = include
 BIN_DIR = bin
+OBJ_DIR = obj
+
+# Target executable and symbolic links
 TARGET = $(BIN_DIR)/scli
 LINKS = mls mmkdir mtouch mrmdir mrm mcp mmv mcat mgrep mchmod
 
+# Source files and object files
+SRCS = $(wildcard $(SRC_DIR)/**/*.c $(SRC_DIR)/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+OBJ_DIRS = $(sort $(dir $(OBJS)))
+
 # Default target
-all: $(BIN_DIR) $(TARGET) links
+all: $(BIN_DIR) $(OBJ_DIRS) $(TARGET) links
 
-# Create the bin directory
+# Create necessary directories
 $(BIN_DIR):
-	mkdir -p $(BIN_DIR)
+	mkdir -p $@
 
-# Compile the main executable
-$(TARGET): src/main.c | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(TARGET) src/main.c
-	echo "Compiled: $(TARGET)"
+$(OBJ_DIRS):
+	mkdir -p $@
+
+# Compile object files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	echo "Compiled: $@"
+
+# Link object files to create the executable
+$(TARGET): $(OBJS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@
+	echo "Linked: $(TARGET)"
 
 # Create symbolic links in the bin directory
 links: $(TARGET)
@@ -26,10 +44,16 @@ links: $(TARGET)
 		echo "Created symbolic link: $(BIN_DIR)/$$link -> scli"; \
 	done
 
-# Clean up
+# Clean up build files
 clean:
-	rm -rf $(BIN_DIR)
-	echo "Cleaned up: $(BIN_DIR)"
+	rm -rf $(BIN_DIR) $(OBJ_DIR)
+	echo "Cleaned up: $(BIN_DIR) and $(OBJ_DIR)"
 
-.PHONY: all links clean
+# Debug target to print variables (optional)
+debug:
+	@echo "Source files: $(SRCS)"
+	@echo "Object files: $(OBJS)"
+	@echo "Object directories: $(OBJ_DIRS)"
+
+.PHONY: all links clean debug
 

@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <dirent.h>
+#include <string.h>
+#include "../include/logger.h"
 
 int dir_ls(int argc, char *argv[]) {
   // open the directory
@@ -12,12 +14,15 @@ int dir_ls(int argc, char *argv[]) {
 
   // list the folder
   struct dirent *read_dir;
+  char result[256];
   while ((read_dir = readdir(dir_ptr)) != NULL) {
     if (read_dir->d_type == DT_REG) {
-      printf("FILE: %s\n", read_dir->d_name);
+      snprintf(result, sizeof(result), "FILE: %s\n", read_dir->d_name);
     } else if (read_dir->d_type == DT_DIR) {
-      printf("DIR: %s\n", read_dir->d_name);
+      snprintf(result, sizeof(result), "DIR: %s\n", read_dir->d_name);
     }
+    printf("%s", result);
+    logD("mls", result);
   }
 
   // close the folder
