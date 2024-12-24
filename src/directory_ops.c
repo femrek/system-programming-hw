@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
@@ -186,6 +187,31 @@ int dir_mkdir(int argc, char *argv[]) {
 }
 
 int dir_rmdir(int argc, char *argv[]) {
+  if (argc < 2) {
+    perror("folder name must be given.");
+    return 1;
+  }
+
+  char *folder_name = argv[argc - 1];
+
+  // Attempt to remove the directory
+  if (rmdir(folder_name) == -1) {
+    if (errno == ENOENT) {
+      // Directory does not exist
+      printf("Directory '%s' does not exist.\n", folder_name);
+    } else if (errno == ENOTDIR) {
+      // The path is not a directory
+      printf("'%s' is not a directory.\n", folder_name);
+    } else {
+      // Other error
+      perror("Error removing folder");
+      exit(EXIT_FAILURE);
+    }
+  } else {
+    // Directory successfully removed
+    printf("Directory '%s' removed successfully.\n", folder_name);
+  }
+
   return 0;
 }
 
