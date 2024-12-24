@@ -14,14 +14,14 @@
 #define LOG_FILE_DEBUG "system-programming-assingment-logs/debug.log"
 
 void get_home_path(char *buffer, size_t size, const char *sub_path) {
-    const char *home = getenv("HOME");
-    if (home == NULL) {
-        fprintf(stderr, "Error: Could not get HOME environment variable\n");
-        exit(EXIT_FAILURE);
-    }
+  const char *home = getenv("HOME");
+  if (home == NULL) {
+    fprintf(stderr, "Error: Could not get HOME environment variable\n");
+    exit(EXIT_FAILURE);
+  }
 
-    // Construct the full path dynamically
-    snprintf(buffer, size, "%s/%s", home, sub_path);
+  // Construct the full path dynamically
+  snprintf(buffer, size, "%s/%s", home, sub_path);
 }
 
 void ensure_folder_exists(const char *folder_path) {
@@ -34,8 +34,8 @@ void ensure_folder_exists(const char *folder_path) {
     if (*p == '/') {
       *p = '\0'; // Temporarily terminate the string at the current level
       if (mkdir(path, 0755) == -1 && errno != EEXIST) {
-          perror("Error creating folder");
-          return;
+        perror("Error creating folder");
+        return;
       }
       *p = '/'; // Restore the slash
     }
@@ -57,8 +57,8 @@ void logI(char *op_type, char *text) {
   ensure_folder_exists(log_folder_path);
   int fd = open(log_file_path, O_WRONLY | O_CREAT | O_APPEND, 0644);
   if (fd == -1) {
-      perror("Error opening log file");
-      return;
+    perror("Error opening log file");
+    return;
   }
 
   // Prepare the log entry
@@ -74,7 +74,7 @@ void logI(char *op_type, char *text) {
 
   // Write the log entry to the file
   if (write(fd, log_entry, strlen(log_entry)) == -1) {
-      perror("Error writing to log file");
+    perror("Error writing to log file");
   }
 }
 
@@ -88,8 +88,8 @@ void logD(char *op_type, char *text) {
   ensure_folder_exists(log_folder_path);
   int fd = open(log_file_path, O_WRONLY | O_CREAT | O_APPEND, 0644);
   if (fd == -1) {
-      perror("Error opening log file");
-      return;
+    perror("Error opening log file");
+    return;
   }
 
   // Prepare the log entry
@@ -105,7 +105,7 @@ void logD(char *op_type, char *text) {
 
   // Write the log entry to the file
   if (write(fd, log_entry, strlen(log_entry)) == -1) {
-      perror("Error writing to log file");
+    perror("Error writing to log file");
   }
 }
 
