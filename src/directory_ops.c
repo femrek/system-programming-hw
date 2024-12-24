@@ -212,16 +212,16 @@ char *get_size_by_byte_value(int byte) {
 
 char *get_permission_by_code(int code) {
   char *result = malloc(sizeof(char) * 10);
-  strcpy(result, "");
-  if (code & S_IRUSR) strcat(result, "r"); else strcat(result, "-");
-  if (code & S_IWUSR) strcat(result, "w"); else strcat(result, "-");
-  if (code & S_IXUSR) strcat(result, "x"); else strcat(result, "-");
-  if (code & S_IRGRP) strcat(result, "r"); else strcat(result, "-");
-  if (code & S_IWGRP) strcat(result, "w"); else strcat(result, "-");
-  if (code & S_IXGRP) strcat(result, "x"); else strcat(result, "-");
-  if (code & S_IROTH) strcat(result, "r"); else strcat(result, "-");
-  if (code & S_IWOTH) strcat(result, "w"); else strcat(result, "-");
-  if (code & S_IXOTH) strcat(result, "x"); else strcat(result, "-");
+  snprintf(result, 10, "%c%c%c%c%c%c%c%c%c",
+    (code & S_IRUSR) ? 'r' : '-',
+    (code & S_IWUSR) ? 'w' : '-',
+    (code & S_IXUSR) ? 'x' : '-',
+    (code & S_IRGRP) ? 'r' : '-',
+    (code & S_IWGRP) ? 'w' : '-',
+    (code & S_IXGRP) ? 'x' : '-',
+    (code & S_IROTH) ? 'r' : '-',
+    (code & S_IWOTH) ? 'w' : '-',
+    (code & S_IXOTH) ? 'x' : '-');
   return result;
 }
 
