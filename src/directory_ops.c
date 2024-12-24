@@ -20,79 +20,13 @@
 // #define DT_LNK          10
 // #define DT_SOCK         12
 // #define DT_WHT          14
-char *get_file_type_name_by_code(int code) {
-  switch(code) {
-    case DT_UNKNOWN:
-      return "Unknown  ";
-    case DT_FIFO   :
-      return "Fifo     ";
-    case DT_CHR    :
-      return "Chr      ";
-    case DT_DIR    :
-      return "Directory";
-    case DT_BLK    :
-      return "Blk      ";
-    case DT_REG    :
-      return "File     ";
-    case DT_LNK    :
-      return "Link     ";
-    case DT_SOCK   :
-      return "Sock     ";
-    case DT_WHT    :
-      return "Wht      ";
-    default:
-      fprintf(stderr, "Unkown File Type Code: %d\n", code);
-      return "";
-  }
-}
+char *get_file_type_name_by_code(int code);
 
 // turns byte size into presentable string. (e.g. 32B, 123.25KB)
-char *get_size_by_byte_value(int byte) {
-  int sizeOfResult = sizeof(char) * 12;
-  char *result = malloc(sizeOfResult);
-
-  int tmp = byte;
-  int dec = 0;
-  int dept = 0;
-
-  // determine integer and decimal part of the result
-  while (tmp > 1024) {
-    dec = tmp % 1024;
-    tmp /= 1024;
-    dept++;
-  }
-
-  // create the result text according to integer and decimal part.
-  const char *a[] = SIZE_SUFFIXES;
-  if (dec == 0) {
-    snprintf(result, sizeOfResult, "%d%3s", byte, a[dept]);
-  } else {
-    snprintf(result, sizeOfResult, "%d.%d%3s", tmp, dec, a[dept]);
-  }
-
-  // make the result right aligned
-  char resultTemp[12];
-  strcpy(resultTemp, result);
-  snprintf(result, sizeOfResult, "%11s", resultTemp);
-
-  return result;
-}
+char *get_size_by_byte_value(int byte);
 
 // turns the permission code from stat call into presentable text. (e.g. rwxrwxrwx, rwxrw-r--)
-char *get_permission_by_code(int code) {
-  char *result = malloc(sizeof(char) * 10);
-  strcpy(result, "");
-  if (code & S_IRUSR) strcat(result, "r"); else strcat(result, "-");
-  if (code & S_IWUSR) strcat(result, "w"); else strcat(result, "-");
-  if (code & S_IXUSR) strcat(result, "x"); else strcat(result, "-");
-  if (code & S_IRGRP) strcat(result, "r"); else strcat(result, "-");
-  if (code & S_IWGRP) strcat(result, "w"); else strcat(result, "-");
-  if (code & S_IXGRP) strcat(result, "x"); else strcat(result, "-");
-  if (code & S_IROTH) strcat(result, "r"); else strcat(result, "-");
-  if (code & S_IWOTH) strcat(result, "w"); else strcat(result, "-");
-  if (code & S_IXOTH) strcat(result, "x"); else strcat(result, "-");
-  return result;
-}
+char *get_permission_by_code(int code);
 
 int dir_ls(int argc, char *argv[]) {
   // determine the listing directory
@@ -173,16 +107,19 @@ int dir_mkdir(int argc, char *argv[]) {
     if (errno == EEXIST) {
       // Folder already exists
       printf("Folder '%s' already exists.\n", folder_name);
+      return EXIT_FAILURE;
     } else {
       // Error occurred while creating the folder
       perror("Error creating folder");
       return EXIT_FAILURE;
     }
-  } else {
-    // Folder successfully created
-    printf("Folder '%s' created successfully.\n", folder_name);
   }
 
+  // Folder created successfully
+  char text[512];
+  snprintf(text, sizeof(text), "Folder '%s' created successfully.\n", folder_name);
+  printf("%s", text);
+  logD("mmkdir", text);
   return 0;
 }
 
@@ -207,11 +144,84 @@ int dir_rmdir(int argc, char *argv[]) {
       perror("Error removing folder");
       exit(EXIT_FAILURE);
     }
-  } else {
-    // Directory successfully removed
-    printf("Directory '%s' removed successfully.\n", folder_name);
   }
 
+  char text[512];
+  snprintf(text, sizeof(text), "Directory '%s' removed successfully.\n", folder_name);
+  printf("%s", text);
+  logD("mrmdir", text);
   return 0;
+}
+
+char *get_file_type_name_by_code(int code) {
+  switch(code) {
+    case DT_UNKNOWN:
+      return "Unknown  ";
+    case DT_FIFO   :
+      return "Fifo     ";
+    case DT_CHR    :
+      return "Chr      ";
+    case DT_DIR    :
+      return "Directory";
+    case DT_BLK    :
+      return "Blk      ";
+    case DT_REG    :
+      return "File     ";
+    case DT_LNK    :
+      return "Link     ";
+    case DT_SOCK   :
+      return "Sock     ";
+    case DT_WHT    :
+      return "Wht      ";
+    default:
+      fprintf(stderr, "Unkown File Type Code: %d\n", code);
+      return "";
+  }
+}
+
+char *get_size_by_byte_value(int byte) {
+  int sizeOfResult = sizeof(char) * 12;
+  char *result = malloc(sizeOfResult);
+
+  int tmp = byte;
+  int dec = 0;
+  int dept = 0;
+
+  // determine integer and decimal part of the result
+  while (tmp > 1024) {
+    dec = tmp % 1024;
+    tmp /= 1024;
+    dept++;
+  }
+
+  // create the result text according to integer and decimal part.
+  const char *a[] = SIZE_SUFFIXES;
+  if (dec == 0) {
+    snprintf(result, sizeOfResult, "%d%3s", byte, a[dept]);
+  } else {
+    snprintf(result, sizeOfResult, "%d.%d%3s", tmp, dec, a[dept]);
+  }
+
+  // make the result right aligned
+  char resultTemp[12];
+  strcpy(resultTemp, result);
+  snprintf(result, sizeOfResult, "%11s", resultTemp);
+
+  return result;
+}
+
+char *get_permission_by_code(int code) {
+  char *result = malloc(sizeof(char) * 10);
+  strcpy(result, "");
+  if (code & S_IRUSR) strcat(result, "r"); else strcat(result, "-");
+  if (code & S_IWUSR) strcat(result, "w"); else strcat(result, "-");
+  if (code & S_IXUSR) strcat(result, "x"); else strcat(result, "-");
+  if (code & S_IRGRP) strcat(result, "r"); else strcat(result, "-");
+  if (code & S_IWGRP) strcat(result, "w"); else strcat(result, "-");
+  if (code & S_IXGRP) strcat(result, "x"); else strcat(result, "-");
+  if (code & S_IROTH) strcat(result, "r"); else strcat(result, "-");
+  if (code & S_IWOTH) strcat(result, "w"); else strcat(result, "-");
+  if (code & S_IXOTH) strcat(result, "x"); else strcat(result, "-");
+  return result;
 }
 
