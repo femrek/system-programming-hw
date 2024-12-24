@@ -2,15 +2,60 @@
 #include <time.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/stat.h>
 #include "../include/utils/get_current_time.h"
 
-#define LOG_FILE_INFO "logs/info.log"
-#define LOG_FILE_DEBUG "logs/debug.log"
+#define LOG_FOLDER "system-programming-assingment-logs"
+#define LOG_FILE_INFO "system-programming-assingment-logs/info.log"
+#define LOG_FILE_DEBUG "system-programming-assingment-logs/debug.log"
+
+void get_home_path(char *buffer, size_t size, const char *sub_path) {
+    const char *home = getenv("HOME");
+    if (home == NULL) {
+        fprintf(stderr, "Error: Could not get HOME environment variable\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Construct the full path dynamically
+    snprintf(buffer, size, "%s/%s", home, sub_path);
+}
+
+void ensure_folder_exists(const char *folder_path) {
+  char path[256];
+  snprintf(path, sizeof(path), "%s", folder_path);
+  char *p = path;
+
+  // Iterate through the path and create directories
+  for (p = path + 1; *p; p++) {
+    if (*p == '/') {
+      *p = '\0'; // Temporarily terminate the string at the current level
+      if (mkdir(path, 0755) == -1 && errno != EEXIST) {
+          perror("Error creating folder");
+          return;
+      }
+      *p = '/'; // Restore the slash
+    }
+  }
+
+  // Create the final directory
+  if (mkdir(path, 0755) == -1 && errno != EEXIST) {
+    perror("Error creating folder");
+  }
+}
 
 void logI(char *op_type, char *text) {
+  char log_file_path[512];
+  char log_folder_path[512];
+  get_home_path(log_folder_path, sizeof(log_folder_path), LOG_FOLDER);
+  get_home_path(log_file_path, sizeof(log_file_path), LOG_FILE_INFO);
+
   // Open the log file in append mode
-  int fd = open(LOG_FILE_INFO, O_WRONLY | O_CREAT | O_APPEND, 0644);
+  ensure_folder_exists(log_folder_path);
+  int fd = open(log_file_path, O_WRONLY | O_CREAT | O_APPEND, 0644);
   if (fd == -1) {
       perror("Error opening log file");
       return;
@@ -34,8 +79,14 @@ void logI(char *op_type, char *text) {
 }
 
 void logD(char *op_type, char *text) {
+  char log_file_path[512];
+  char log_folder_path[512];
+  get_home_path(log_folder_path, sizeof(log_folder_path), LOG_FOLDER);
+  get_home_path(log_file_path, sizeof(log_file_path), LOG_FILE_DEBUG);
+
   // Open the log file in append mode
-  int fd = open(LOG_FILE_DEBUG, O_WRONLY | O_CREAT | O_APPEND, 0644);
+  ensure_folder_exists(log_folder_path);
+  int fd = open(log_file_path, O_WRONLY | O_CREAT | O_APPEND, 0644);
   if (fd == -1) {
       perror("Error opening log file");
       return;
