@@ -97,6 +97,23 @@ int file_cp(int argc, char *argv[]) {
 }
 
 int file_mv(int argc, char *argv[]) {
+  if (argc < 3) {
+    perror("source and destination file names must be given.");
+    return 1;
+  }
+
+  char *source_file = argv[argc - 2];
+  char *destination_file = argv[argc - 1];
+
+  // rename source file to destination file
+  if (rename(source_file, destination_file) == -1) {
+    perror("file move failed.");
+    return 1;
+  }
+
+  char *text = "file moved successfully.\n";
+  printf("%s", text);
+  logD("mmv", text);
   return 0;
 }
 
