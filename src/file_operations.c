@@ -148,5 +148,34 @@ int file_cat(int argc, char *argv[]) {
 }
 
 int file_grep(int argc, char *argv[]) {
+  if (argc < 3) {
+    perror("search string and file name must be given.");
+    return 1;
+  }
+
+  char *search_string = argv[argc - 2];
+  char *file_name = argv[argc - 1];
+
+  // open file
+  int fd = open(file_name, O_RDONLY);
+  if (fd == -1) {
+    perror("file open failed.");
+    return 1;
+  }
+
+  // read and search file content
+  char buffer[1024];
+  int read_bytes;
+  while ((read_bytes = read(fd, buffer, sizeof(buffer))) > 0) {
+    if (strstr(buffer, search_string) != NULL) {
+      if (write(STDOUT_FILENO, buffer, read_bytes) == -1) {
+        perror("file read failed.");
+        return 1;
+      }
+      logD("mgrep", buffer);
+    }
+  }
+
+  close(fd);
   return 0;
 }
