@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <string.h>
+#include <errno.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include "../include/logger.h"
 
 #define SIZE_SUFFIXES {"B", "KB", "MB", "GB", "TB"}
@@ -159,6 +161,27 @@ int dir_ls(int argc, char *argv[]) {
 }
 
 int dir_mkdir(int argc, char *argv[]) {
+  if (argc < 2) {
+    perror("folder name must be given.");
+    return 1;
+  }
+
+  char *folder_name = argv[argc - 1];
+
+  if (mkdir(folder_name, 0755) == -1) {
+    if (errno == EEXIST) {
+      // Folder already exists
+      printf("Folder '%s' already exists.\n", folder_name);
+    } else {
+      // Error occurred while creating the folder
+      perror("Error creating folder");
+      return EXIT_FAILURE;
+    }
+  } else {
+    // Folder successfully created
+    printf("Folder '%s' created successfully.\n", folder_name);
+  }
+
   return 0;
 }
 
